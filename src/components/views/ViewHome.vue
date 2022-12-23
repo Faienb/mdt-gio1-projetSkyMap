@@ -7,7 +7,7 @@ export default {
   name: 'home',
   data() {
     return {
-      hellomessage: 'Hello World !!'
+      hellomessage: 'Hello World !!!'
     };
   }
 };
