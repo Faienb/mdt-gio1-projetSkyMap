@@ -10,9 +10,7 @@
       <p class="card-footer-item">
         <span>
           Check more on
-          <a target="_blank" rel="noopener noreferrer" :href="tronalddumpURL"
-            >@Tronald Dump</a
-          >
+          <a target="_blank" rel="noopener noreferrer" :href="tronalddumpURL">@Tronald Dump</a>
         </span>
       </p>
     </footer>

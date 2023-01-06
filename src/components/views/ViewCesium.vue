@@ -5,13 +5,14 @@
 <script>
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import * as Cesium from 'cesium';
+import SkyBox from 'cesium/Source/Scene/SkyBox';
 
 export default {
   name: 'CesiumGlobeView',
   data() {
     return {
-      center: [6.659361, 46.779389],
-      defaultheight: 1500,
+      center: [0.0, 0.0],
+      defaultheight: 0.0,
       viewer: null
     };
   },
@@ -25,11 +26,16 @@ export default {
      */
     flytodirection(globecenter, globeheight, viewer) {
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
+        destination: Cesium.Cartesian3(
           globecenter[0],
           globecenter[1],
           globeheight
-        )
+        ),
+        orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(0.0),
+          roll: Cesium.Math.toRadians(0.0),
+        },
       });
     },
     /**
@@ -39,9 +45,52 @@ export default {
      */
     setupCesiumGlobe() {
       let viewer = new Cesium.Viewer('cesium-container', {
-        terrainProvider: new Cesium.createWorldTerrain()
+        sceneMode: Cesium.SceneMode.SCENE3D,
+        globe: false,
+        timeline: false,
+        animation: false,
+        baseLayerPicker: false,
+        homeButton: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        geocoder: false,
+        skyBox: false
       });
-      viewer.scene.primitives.add(Cesium.createOsmBuildings());
+      //viewer.scene.primitives.add(Cesium.createOsmBuildings());
+      //viewer.scene.globe.showGroundAtmosphere = false
+      //viewer.scene.skyBox.brightnessShift = 0.5;
+      const skySphere = viewer.entities.add({
+        name: "Yellow ellipsoid outline",
+        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
+        ellipsoid: {
+          radii: new Cesium.Cartesian3(100.0, 100.0, 100.0),
+          fill: false,
+          outline: true,
+          outlineColor: Cesium.Color.YELLOW,
+          slicePartitions: 60,
+          stackPartitions: 60,
+        },
+      })
+      const brownCircle = viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
+        name: "Brown circle at height with outline",
+        ellipse: {
+          semiMinorAxis: 100.0,
+          semiMajorAxis: 100.0,
+          height: 0.0,
+          material: Cesium.Color.BROWN,
+          outline: true, // height must be set for outline to display
+        },
+      })
+      const polarisTest = viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
+        name: "Polaris star test",
+        ellipsoid: {
+          radii: new Cesium.Cartesian3(50.0, 50.0, 50.0),
+          material: Cesium.Color.WHITE,
+          glowPower: 0.5
+        },
+      })
       return viewer;
     }
   },
