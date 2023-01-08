@@ -83,7 +83,7 @@ export default {
       })
       const polarisTest = viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight+99.0),
-        name: "Polaris star",
+        name: "Polaris star test",
         ellipsoid: {
           radii: new Cesium.Cartesian3(1.0, 1.0, 1.0),
           material: Cesium.Color.WHITE,

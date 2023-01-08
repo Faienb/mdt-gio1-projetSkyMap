@@ -42,6 +42,7 @@ export default {
       iconAnchor: [24, 24], // point of the icon which will correspond to marker's location
       popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
     });
+    let ObsPoint;
     this.lmap = this.setupLeafletMap(this.center, this.zoom);
     let map = this.lmap;
     var popup = L.popup();
@@ -52,6 +53,8 @@ export default {
         .setContent("Current observation point : Lat WGS84 = " + e.latlng.lat.toFixed(6) + "Lon WGS84 = " + e.latlng.lng.toFixed(6))
         .openOn(map);
       L.marker(e.latlng, { icon: Telescope }).addTo(map);
+      ObsPoint = [e.latlng.lat,e.latlng.lng];
+      console.log(ObsPoint);
     }
     if (map.hasLayer(Telescope)) {
       map.removeLayer(Telescope);

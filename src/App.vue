@@ -31,11 +31,11 @@ export default {
           route: '/axios'
         },
         {
-          menuname: 'Select astronomical observation point',
+          menuname: 'OpenLayer',
           route: '/openlayers'
         },
         {
-          menuname: '2d_leaflet',
+          menuname: 'Select observation point',
           route: '/leaflet'
         },
         {
