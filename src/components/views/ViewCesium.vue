@@ -5,7 +5,6 @@
 <script>
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import * as Cesium from 'cesium';
-import SkyBox from 'cesium/Source/Scene/SkyBox';
 
 export default {
   name: 'CesiumGlobeView',
@@ -26,7 +25,7 @@ export default {
      */
     flytodirection(globecenter, globeheight, viewer) {
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3(
+        destination: Cesium.Cartesian3.fromDegrees(
           globecenter[0],
           globecenter[1],
           globeheight
@@ -77,16 +76,16 @@ export default {
         ellipse: {
           semiMinorAxis: 100.0,
           semiMajorAxis: 100.0,
-          height: 0.0,
-          material: Cesium.Color.BROWN,
+          height: -1.0,
+          material: Cesium.Color.BLACK,
           outline: true, // height must be set for outline to display
         },
       })
       const polarisTest = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
-        name: "Polaris star test",
+        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight+99.0),
+        name: "Polaris star",
         ellipsoid: {
-          radii: new Cesium.Cartesian3(50.0, 50.0, 50.0),
+          radii: new Cesium.Cartesian3(1.0, 1.0, 1.0),
           material: Cesium.Color.WHITE,
           glowPower: 0.5
         },
