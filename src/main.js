@@ -84,6 +84,6 @@ export function GetParsedCatalog(stringUrl, positionObs) {
 }
 
 
-const MessierCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee");
-const NGCCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=ngc-ic-messier-catalog&q=&rows=10000&sort=name&facet=catalog&refine.catalog=NGC");
-const HYGStellarCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=hyg-stellar-database&q=&rows=10000&start=0&sort=mag&facet=mag");
+//const MessierCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee");
+//const NGCCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=ngc-ic-messier-catalog&q=&rows=10000&sort=name&facet=catalog&refine.catalog=NGC");
+//const HYGStellarCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=hyg-stellar-database&q=&rows=10000&start=0&sort=mag&facet=mag");
