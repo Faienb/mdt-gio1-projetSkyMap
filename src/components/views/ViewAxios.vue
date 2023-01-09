@@ -1,16 +1,16 @@
 <template>
-  <div id="trump-card" class="card">
+  <div class="card">
     <div class="card-content">
-      <p class="title">“{{ trumpQuote }}”</p>
-      <p class="subtitle">
-        Tronald Dump
-      </p>
-    </div>
+      <p>Ville : {{ ville }} (altitude: {{ elevation }}m)</p>
+	  <p>Date : {{ date }} (heure: {{ heure }})</p>
+	  <p>Conditions actuelles : {{ condActuelles }} <img height="20" width="20" v-bind:src="condActuellesIcon" /></p>
+	</div>
     <footer class="card-footer">
       <p class="card-footer-item">
         <span>
-          Check more on
-          <a target="_blank" rel="noopener noreferrer" :href="tronalddumpURL">@Tronald Dump</a>
+          <a target="_blank" rel="noopener noreferrer" :href="url">
+		  {{previsionMeteo}}
+		  </a>
         </span>
       </p>
     </footer>
@@ -18,54 +18,64 @@
 </template>
 
 <script>
-import axios from 'axios';
+
+import axios from 'axios'
 
 export default {
-  name: 'dump-fact',
-  data() {
-    return {
-      tronalddumpURL: 'https://www.tronalddump.io/',
-      apiURL: 'https://api.tronalddump.io/search/quote?query=',
-      query: 'apologize',
-      trumpQuote: ''
-    };
-  },
-  methods: {
-    /**
-     * [Get] dumb quote from Donald Trump
-     *
-     * @param {String} url url of the api
-     * @param {String} query query send to the api (word)
-     * @returns {Promise<String>} quote from the API || default string if quote not found || default string if error
-     * @catch error from the request
-     */
-    async getTrumpTweet(url, query) {
-      const response = await axios.get(url + query);
-
-      // response status handling: success & error
-      if (response.status == 200 && response.data.count > 0) {
-        // Get & return first quote
-        return response.data._embedded.quotes[0].value;
-      } else if (response.status == 404) {
-        throw new Error("Didn't find any answers");
-      } else {
-        throw new Error(`Ouch an unknown ${response.status} error occurred`);
-      }
-    }
-  },
-  async mounted() {
-    try {
-      this.trumpQuote = await this.getTrumpTweet(this.apiURL, this.query);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-};
+	
+    name: 'myTest',
+	data() {
+        return {
+			previsionApiUrl: 'https://www.prevision-meteo.ch/services/json/nyon',
+			url: 'http://www.prevision-meteo.ch',
+			previsionMeteo: 'prevision-meteo.ch',
+			ville: '',
+			elevation: '',
+			date: '',
+			heure: '',
+			condActuelles: '',
+			condActuellesIcon: '',
+			results: ''
+        };
+    },
+	
+    async mounted() {
+		try{
+			const result = await axios.get(this.previsionApiUrl);
+			this.results = result;
+			this.ville = result.data.city_info.name;
+			this.elevation = result.data.city_info.elevation;
+			this.date = result.data.current_condition.date;
+			this.heure = result.data.current_condition.hour;
+			this.condActuelles = result.data.current_condition.condition;
+			this.condActuellesIcon = result.data.current_condition.icon;
+			console.log(result);
+		} catch (e){
+			console.error(e)
+		}
+	}
+}
 </script>
 
 <style scoped>
-#trump-card {
-  width: 50%;
-  margin: auto;
+.card {
+	font-size: 14px;
+	width: 75%;
+	margin: auto;
+}
+.card-content {
+	font-size: 20px;
+	text-align: left;
+}
+.card-footer {
+	font-size: 24px;
+	color: #41B883;
+}
+a {
+	font-size: 12px;
+	color: #41B883;
+}
+a:hover {
+	color: #41B883;
 }
 </style>
