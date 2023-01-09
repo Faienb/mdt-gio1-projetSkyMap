@@ -23,7 +23,7 @@ export default {
     return {
       menuList: [
         {
-          menuname: 'Hello',
+          menuname: 'Home',
           route: '/'
         },
         {
@@ -31,15 +31,15 @@ export default {
           route: '/axios'
         },
         {
-          menuname: '2d_openlayers',
+          menuname: 'OpenLayer',
           route: '/openlayers'
         },
         {
-          menuname: '2d_leaflet',
+          menuname: 'Select observation point',
           route: '/leaflet'
         },
         {
-          menuname: '3d_cesium',
+          menuname: 'Sky Map',
           route: '/cesium'
         }
       ]
