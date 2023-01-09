@@ -9,12 +9,13 @@ VUE_APP.use(router);
 VUE_APP.mount('#app');
 
 let positionObs = {
-  "Date":"06.01.2023",
-  "Heure":"15:44.55",
-  "LonWGS84":7.59527,
-  "LatWGS84":46.25247
+  "Date": "06.01.2023",
+  "Heure": "15:44.55",
+  "LonWGS84": 7.59527,
+  "LatWGS84": 46.25247
 }
-
+//Simplifier tout ça en utilisant l'API fetch
+//supprimer méthode et utiliser fetch
 function retrieveCatalogue(stringUrl) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
@@ -39,12 +40,12 @@ function RaDeJ2000toRaDeObs(catalog, positionObs) {
   let month = Number(positionObs["Date"].split(".")[1]);
   let day = Number(positionObs["Date"].split(".")[0]);
   let hour = Number(positionObs["Heure"].split(".")[0]);
-  let minute = Number(positionObs["Heure"].split(".")[1])/60;
-  let second = Number(positionObs["Heure"].split(".")[2])/3600;
+  let minute = Number(positionObs["Heure"].split(".")[1]) / 60;
+  let second = Number(positionObs["Heure"].split(".")[2]) / 3600;
   hour = hour + minute + second;
 
-  let longitude = positionObs["LonWGS84"]*Math.PI/180.0;
-  let latitude = positionObs["LatWGS84"]*Math.PI/180.0;
+  let longitude = positionObs["LonWGS84"] * Math.PI / 180.0;
+  let latitude = positionObs["LatWGS84"] * Math.PI / 180.0;
 
   // Étape 1 : calcule de l'angle d'obliquité de l'écliptique
   var Jday = 367 * year - Math.floor((7 * (year + Math.floor((month + 9) / 12))) / 4) + Math.floor((275 * month) / 9) + day + 1721013.5 + hour / 24;
@@ -56,14 +57,14 @@ function RaDeJ2000toRaDeObs(catalog, positionObs) {
   // Étape 3 : calcule du temps sidéral apparent
   var ApparentSideralTime = MeanSideralTime + longitude;
 
-  for (const key in catalog){
+  for (const key in catalog) {
     console.log(catalog.key.fields);
-    let RaJ20000 = catalog.key.fields.ra*Math.PI/180.0;
-    let DecJ2000 = catalog.key.fields.dec*Math.PI/180.0;
+    let RaJ20000 = catalog.key.fields.ra * Math.PI / 180.0;
+    let DecJ2000 = catalog.key.fields.dec * Math.PI / 180.0;
 
     // Étape 4 : calcule de l'ascension droite et de la déclinaison
-    var RaObs = (ApparentSideralTime / 15 + RaJ20000)*180.0/Math.PI;
-    var DecObs = (Math.asin(Math.sin(obliquity) * Math.sin(latitude)))*180.0/Math.PI;
+    var RaObs = (ApparentSideralTime / 15 + RaJ20000) * 180.0 / Math.PI;
+    var DecObs = (Math.asin(Math.sin(obliquity) * Math.sin(latitude))) * 180.0 / Math.PI;
 
     catalog.key.fields.RaObs = RaObs;
     catalog.key.fields.DecObs = DecObs;
@@ -72,18 +73,10 @@ function RaDeJ2000toRaDeObs(catalog, positionObs) {
   return catalog;
 }
 
-function GetParsedCatalog(stringUrl) {
-  return retrieveCatalogue(stringUrl)
-    .then(response => {
-      const catalog = {};
-      const catalogParsed = JSON.parse(response);
-      for (const key in catalogParsed.records){
-        catalog[key] = catalogParsed.records[key];
-      }
-      catalog = RaDeJ2000toRaDeObs(catalog);
-      console.log(catalog);
-      return catalog;
-    })
+export function GetParsedCatalog(stringUrl, positionObs) {
+  return fetch(stringUrl)
+    .then(response => response.json())
+    .then(catalog => RaDeJ2000toRaDeObs(catalog.records, positionObs))
     .catch(error => {
       console.error(error);
       return error;

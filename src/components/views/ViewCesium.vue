@@ -5,13 +5,14 @@
 <script>
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import * as Cesium from 'cesium';
+import { store } from '../../store';
 
 export default {
   name: 'CesiumGlobeView',
   data() {
     return {
-      center: [0.0, 0.0],
-      defaultheight: 0.0,
+      center: [7.33487, 46.19804],
+      defaultheight: 1300.0,
       viewer: null
     };
   },
@@ -32,7 +33,7 @@ export default {
         ),
         orientation: {
           heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(10.0),
           roll: Cesium.Math.toRadians(0.0),
         },
       });
@@ -43,49 +44,60 @@ export default {
      * @returns {Viewer} viewer from cesium
      */
     setupCesiumGlobe() {
+
       let viewer = new Cesium.Viewer('cesium-container', {
-        sceneMode: Cesium.SceneMode.SCENE3D,
-        globe: false,
-        timeline: false,
-        animation: false,
-        baseLayerPicker: false,
+        terrainProvider: new Cesium.createWorldTerrain(),
+        fullscreenButton: false,
         homeButton: false,
         sceneModePicker: false,
+        selectionIndicator: false,
+        timeline: true,
+        animation: true,
+        geocoder: true,
+        navigationInstructionsInitiallyVisible: false,
         navigationHelpButton: false,
-        geocoder: false,
-        skyBox: false
+        scene3DOnly: true
       });
-      //viewer.scene.primitives.add(Cesium.createOsmBuildings());
-      //viewer.scene.globe.showGroundAtmosphere = false
-      //viewer.scene.skyBox.brightnessShift = 0.5;
+      viewer.scene.primitives.add(Cesium.createOsmBuildings());
+
+      //Remove atmosphere to show night sky
+      viewer.scene.skyAtmosphere.show = false;
+      viewer.scene.fog.enabled = false;
+      viewer.scene.globe.showGroundAtmosphere = false;
+
+      var dashedLine = viewer.entities.add({
+        name: 'Blue dashed line',
+        polyline: {
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights([this.center[0], this.center[1], this.defaultheight,
+          this.center[0], this.center[1], this.defaultheight-100.0]),
+          width: 4,
+          material: new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.CYAN
+          })
+        }
+      });
+
+      var center = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight);
+      var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+      viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(0, -Math.PI / 4, 200));
+
       const skySphere = viewer.entities.add({
         name: "Yellow ellipsoid outline",
         position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
         ellipsoid: {
-          radii: new Cesium.Cartesian3(100.0, 100.0, 100.0),
+          radii: new Cesium.Cartesian3(100000.0, 100000.0, 100000.0),
           fill: false,
           outline: true,
-          outlineColor: Cesium.Color.YELLOW,
+          outlineColor: Cesium.Color.LIGHTBLUE,
           slicePartitions: 60,
           stackPartitions: 60,
         },
       })
-      const brownCircle = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
-        name: "Brown circle at height with outline",
-        ellipse: {
-          semiMinorAxis: 100.0,
-          semiMajorAxis: 100.0,
-          height: -1.0,
-          material: Cesium.Color.BLACK,
-          outline: true, // height must be set for outline to display
-        },
-      })
       const polarisTest = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight+99.0),
-        name: "Polaris star test",
+        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight + 100000.0),
+        name: "Polaris star test mag:1.5",
         ellipsoid: {
-          radii: new Cesium.Cartesian3(1.0, 1.0, 1.0),
+          radii: new Cesium.Cartesian3(10000.0, 10000.0, 10000.0),
           material: Cesium.Color.WHITE,
           glowPower: 0.5
         },
@@ -96,6 +108,8 @@ export default {
   mounted() {
     // add cesium ion token to the app
     Cesium.Ion.defaultAccessToken = process.env.VUE_APP_CESIUM_ION_TOKEN;
+    console.log(store.lat);
+    console.log(store.lon);
 
     this.viewer = this.setupCesiumGlobe();
     this.flytodirection(this.center, this.defaultheight, this.viewer);

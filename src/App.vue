@@ -1,5 +1,5 @@
 <template>
-  <img id="vue-icon" src="./assets/logo.png" alt="Logo" />
+  <img id="vue-icon" src="./assets/Logo2.png" alt="Logo" />
   <!-- Bulma: menu tabs -->
   <div class="tabs is-centered">
     <ul>
