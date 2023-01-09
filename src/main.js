@@ -8,40 +8,14 @@ const VUE_APP = createApp(App);
 VUE_APP.use(router);
 VUE_APP.mount('#app');
 
-let positionObs = {
-  "Date": "06.01.2023",
-  "Heure": "15:44.55",
-  "LonWGS84": 7.59527,
-  "LatWGS84": 46.25247
-}
-//Simplifier tout ça en utilisant l'API fetch
-//supprimer méthode et utiliser fetch
-function retrieveCatalogue(stringUrl) {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("GET", stringUrl);
-    request.send();
-    request.onload = () => {
-      if (request.status === 200) {
-        resolve(request.response);
-      } else {
-        reject(Error(request.statusText));
-      }
-    };
-    request.onerror = () => {
-      reject(Error("Erreur réseau"));
-    };
-  });
-}
-
 function RaDeJ2000toRaDeObs(catalog, positionObs) {
   //Determination des variables
-  let year = Number(positionObs["Date"].split(".")[2]);
-  let month = Number(positionObs["Date"].split(".")[1]);
-  let day = Number(positionObs["Date"].split(".")[0]);
-  let hour = Number(positionObs["Heure"].split(".")[0]);
-  let minute = Number(positionObs["Heure"].split(".")[1]) / 60;
-  let second = Number(positionObs["Heure"].split(".")[2]) / 3600;
+  let year = Number(positionObs["Date"].split("-")[0]);
+  let month = Number(positionObs["Date"].split("-")[1]);
+  let day = Number(positionObs["Date"].split("-")[2].split("T")[0]);
+  let hour = Number(positionObs["Date"].split("T")[1].split(":")[0]);
+  let minute = Number(positionObs["Date"].split("T")[1].split(":")[1]) / 60;
+  let second = Number(positionObs["Date"].split("T")[1].split(":")[2].slice(0,-1)) / 3600;
   hour = hour + minute + second;
 
   let longitude = positionObs["LonWGS84"] * Math.PI / 180.0;
@@ -58,16 +32,16 @@ function RaDeJ2000toRaDeObs(catalog, positionObs) {
   var ApparentSideralTime = MeanSideralTime + longitude;
 
   for (const key in catalog) {
-    console.log(catalog.key.fields);
-    let RaJ20000 = catalog.key.fields.ra * Math.PI / 180.0;
-    let DecJ2000 = catalog.key.fields.dec * Math.PI / 180.0;
+    console.log(catalog[key].fields);
+    let RaJ20000 = catalog[key].fields.ra * Math.PI / 180.0;
+    let DecJ2000 = catalog[key].fields.dec * Math.PI / 180.0;
 
     // Étape 4 : calcule de l'ascension droite et de la déclinaison
     var RaObs = (ApparentSideralTime / 15 + RaJ20000) * 180.0 / Math.PI;
     var DecObs = (Math.asin(Math.sin(obliquity) * Math.sin(latitude))) * 180.0 / Math.PI;
 
-    catalog.key.fields.RaObs = RaObs;
-    catalog.key.fields.DecObs = DecObs;
+    catalog[key].fields.RaObs = RaObs;
+    catalog[key].fields.DecObs = DecObs;
   }
 
   return catalog;

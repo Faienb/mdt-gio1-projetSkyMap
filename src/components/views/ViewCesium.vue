@@ -7,6 +7,7 @@ import 'cesium/Build/Cesium/Widgets/widgets.css';
 import * as Cesium from 'cesium';
 import { store } from '../../store';
 import { GetParsedCatalog } from '../../main';
+import { is } from '@babel/types';
 
 export default {
   name: 'CesiumGlobeView',
@@ -20,7 +21,7 @@ export default {
   methods: {
     GetAltitudofPoint(viewer) {
       var pointOfInterest = Cesium.Cartographic.fromDegrees(
-        store.lon, store.lat, 5000, new Cesium.Cartographic());
+        this.center[0], this.center[1], 5000, new Cesium.Cartographic());
       // Sample the terrain (async) and write the answer to the console.
       return Cesium.sampleTerrain(viewer.terrainProvider, 9, [pointOfInterest])
         .then(function (samples) {
@@ -76,7 +77,7 @@ export default {
       viewer.scene.globe.showGroundAtmosphere = false;
       return viewer;
     },
-    setUpSkyGlobe(viewer){
+    setUpSkyGlobe(viewer) {
       var dashedLine = viewer.entities.add({
         name: 'Blue dashed line',
         polyline: {
@@ -120,21 +121,28 @@ export default {
     // add cesium ion token to the app
     Cesium.Ion.defaultAccessToken = process.env.VUE_APP_CESIUM_ION_TOKEN;
     this.viewer = this.setupCesiumGlobe();
-    if (store.lat === undefined) {
+    if (store.LatWGS84 === undefined) {
       console.log("attention tu n'a pas encore sélectionné de poit d'observation petit con !")
+      store.LatWGS84 = this.center[1];
+      store.LonWGS84 = this.center[0];
+      this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 1000.0;
+      console.log(this.defaultheight);
     }
     else {
 
-      this.center[0] = store.lon;
-      this.center[1] = store.lat;
+      this.center[0] = store.LonWGS84;
+      this.center[1] = store.LatWGS84;
       this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 20.0;
-      
-      //catalog = GetParsedCatalog("")
     }
-    console.log(this.defaultheight);
     this.setUpSkyGlobe(this.viewer);
     this.flytodirection(this.center, this.defaultheight, this.viewer);
 
+    //Recuperation de la date et de l'heure de l'observation
+    store.Date = new Date().toISOString();
+    console.log(store.Date);
+
+    //Affichage des étoiles
+    let MessierCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee", store);
   }
 };
 </script>

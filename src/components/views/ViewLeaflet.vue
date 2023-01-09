@@ -46,8 +46,8 @@ export default {
         .setContent("Current observation point : Lat WGS84 = " + e.latlng.lat.toFixed(6) + " Lon WGS84 = " + e.latlng.lng.toFixed(6))
         .openOn(this.lmap);
       L.marker(e.latlng, { icon: Telescope }).addTo(this.lmap);
-      store.lat = e.latlng.lat;
-      store.lon = e.latlng.lng;
+      store.LatWGS84 = e.latlng.lat;
+      store.LonWGS84 = e.latlng.lng;
     }
   },
   mounted() {
