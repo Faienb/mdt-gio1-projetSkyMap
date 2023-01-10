@@ -67,23 +67,27 @@ function RaDe2000toTRSCartesian(catalog, positionObs) {
     if (catalog[key].fields.ra !== undefined && catalog[key].fields.dec !== undefined) {
       let RaJ2000 = catalog[key].fields.ra
       let DecJ2000 = catalog[key].fields.dec
-      let Radeg;
+      let RaHour;
       let Decdeg;
       if (typeof RaJ2000 === 'string') {
-        Radeg = Number(RaJ2000.split(":")[0]) + Number(RaJ2000.split(":")[1]) / 60 + Number(RaJ2000.split(":")[1]) / 3600;
+        RaHour = Number(RaJ2000.split(":")[0]) + Number(RaJ2000.split(":")[1]) / 60 + Number(RaJ2000.split(":")[1]) / 3600;
         Decdeg = Number(DecJ2000.split(":")[0]) + Number(DecJ2000.split(":")[1]) / 60 + Number(DecJ2000.split(":")[1]) / 3600;
       }
       else {
-        Radeg = Number(RaJ2000);
+        RaHour = Number(RaJ2000);
         Decdeg = Number(DecJ2000);
       }
+      let Radeg = RaHour*15.0;
       let angleHoraire = SideralTime - Radeg;
       let hauteurRad = Math.asin(Math.cos(latRad) * Math.cos(Decdeg * Math.PI / 180.0) * Math.cos(angleHoraire * Math.PI / 180.0) + Math.sin(latRad) * Math.sin(Decdeg * Math.PI / 180.0));
       let a = (-Math.cos(Decdeg * Math.PI / 180.0) * Math.cos(latRad) * Math.sin(angleHoraire * Math.PI / 180.0))
       let b = (Math.sin(Decdeg * Math.PI / 180.0) - Math.sin(latRad) * Math.cos(angleHoraire * Math.PI / 180.0))
-      let azimutRad = Math.atan2(a, b);
+      let azimutRad = Math.atan2(a,b);
       let hauteurDeg = hauteurRad * 180.0 / Math.PI;
       let azimutDeg = azimutRad * 180.0 / Math.PI;
+      if (hauteurDeg<1.0) {
+        catalog[key].fields.xTRS = undefined;
+      }
 
       //Convert into cartesian coordinates
       let r = 100000.0;
