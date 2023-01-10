@@ -8,6 +8,7 @@ import * as Cesium from 'cesium';
 import { store } from '../../store';
 import { GetParsedCatalog } from '../../main';
 import { is } from '@babel/types';
+import SkyBox from 'cesium/Source/Scene/SkyBox';
 
 export default {
   name: 'CesiumGlobeView',
@@ -62,12 +63,12 @@ export default {
         homeButton: false,
         sceneModePicker: false,
         selectionIndicator: false,
-        timeline: true,
-        animation: true,
+        timeline: false,
+        animation: false,
         geocoder: true,
         navigationInstructionsInitiallyVisible: false,
         navigationHelpButton: false,
-        scene3DOnly: true
+        scene3DOnly: true,
       });
       viewer.scene.primitives.add(Cesium.createOsmBuildings());
 
@@ -75,6 +76,7 @@ export default {
       viewer.scene.skyAtmosphere.show = false;
       viewer.scene.fog.enabled = false;
       viewer.scene.globe.showGroundAtmosphere = false;
+      viewer.scene.skyBox.show = false;
       return viewer;
     },
     setUpSkyGlobe(viewer) {
@@ -106,13 +108,19 @@ export default {
           stackPartitions: 60,
         },
       })
-      const polarisTest = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight + 100000.0),
-        name: "Polaris star test mag:1.5",
+    },
+    displayStars(viewer, ObjectInfo, name, color) {
+      let SkyObjectName = name;
+      let xTRS = ObjectInfo.fields.xTRS;
+      let yTRS = ObjectInfo.fields.yTRS;
+      let zTRS = ObjectInfo.fields.zTRS;
+      const SkyObject = viewer.entities.add({
+        position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
+        name: SkyObjectName,
         ellipsoid: {
-          radii: new Cesium.Cartesian3(10000.0, 10000.0, 10000.0),
-          material: Cesium.Color.WHITE,
-          glowPower: 0.5
+          radii: new Cesium.Cartesian3(250.0, 250.0, 250.0),
+          material: color,
+          glowPower: 1.0
         },
       })
     }
@@ -125,15 +133,16 @@ export default {
       console.log("attention tu n'a pas encore sélectionné de poit d'observation petit con !")
       store.LatWGS84 = this.center[1];
       store.LonWGS84 = this.center[0];
-      this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 1000.0;
+      this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 50.0;
       console.log(this.defaultheight);
     }
     else {
 
       this.center[0] = store.LonWGS84;
       this.center[1] = store.LatWGS84;
-      this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 20.0;
+      this.defaultheight = await this.GetAltitudofPoint(this.viewer) + 50.0;
     }
+    store.Height = this.defaultheight;
     this.setUpSkyGlobe(this.viewer);
     this.flytodirection(this.center, this.defaultheight, this.viewer);
 
@@ -142,7 +151,26 @@ export default {
     console.log(store.Date);
 
     //Affichage des étoiles
-    let MessierCatalog = GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee", store);
+    let MessierCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee", store);
+    let NGCCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=ngc-ic-messier-catalog&q=&rows=1000&sort=name&facet=catalog&facet=object_definition&facet=const&facet=hubble", store);
+    let HYGStellarCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=hyg-stellar-database&q=&rows=100&sort=mag&facet=mag", store);
+    for (const key in MessierCatalog) {
+      if (MessierCatalog[key].fields.xTRS !== undefined) {
+        this.displayStars(this.viewer, MessierCatalog[key], MessierCatalog[key].fields.messier, Cesium.Color.LIGHTCORAL);
+      }
+    }
+    for (const key in NGCCatalog) {
+      if (NGCCatalog[key].fields.xTRS !== undefined) {
+        this.displayStars(this.viewer, NGCCatalog[key], NGCCatalog[key].fields.name, Cesium.Color.LIGHTGREEN);
+      }
+    }
+    /* for (const key in HYGStellarCatalog) {
+      if (HYGStellarCatalog[key].fields.xTRS !== undefined) {
+        console.log(HYGStellarCatalog[key].fields.french_name_nom_francais);
+        console.log(HYGStellarCatalog[key].fields.mag);
+        this.displayStars(this.viewer, HYGStellarCatalog[key]);
+      }
+    } */
   }
 };
 </script>

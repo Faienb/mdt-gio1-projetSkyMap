@@ -26,7 +26,7 @@ export default {
     name: 'myTest',
 	data() {
         return {
-			previsionApiUrl: 'https://www.prevision-meteo.ch/services/json/nyon',
+			previsionApiUrl: 'https://www.prevision-meteo.ch/services/json/sierre',
 			url: 'http://www.prevision-meteo.ch',
 			previsionMeteo: 'prevision-meteo.ch',
 			ville: '',

@@ -27,20 +27,20 @@ export default {
           route: '/'
         },
         {
-          menuname: 'Axios',
-          route: '/axios'
+          menuname: 'Current meteo',
+          route: '/meteo'
         },
-        {
+        /* {
           menuname: 'OpenLayer',
           route: '/openlayers'
-        },
+        }, */
         {
           menuname: 'Select observation point',
-          route: '/leaflet'
+          route: '/ObsPoint'
         },
         {
           menuname: 'Sky Map',
-          route: '/cesium'
+          route: '/3DNightSkyViewer'
         }
       ]
     };
