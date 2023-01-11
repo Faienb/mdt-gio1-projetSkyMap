@@ -115,16 +115,10 @@ export default {
       let xTRS = ObjectInfo.fields.xTRS;
       let yTRS = ObjectInfo.fields.yTRS;
       let zTRS = ObjectInfo.fields.zTRS;
-      const c = 1000
-      let r = c / (Math.abs(mag)/2.5);
-      if (mag < 1.0 && mag >= 0.0) {
-        r = c;
-      }
-      else if (mag < 0.0) {
-        r = 2.5 *c;
-      }
-      else if (mag < -20) {
-        r = 3*c;
+      const c = 80
+      let r = (14-mag)*c
+      if (mag < -20) {
+        r = 50*c
       }
       const SkyObject = viewer.entities.add({
         position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
