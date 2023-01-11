@@ -77,11 +77,12 @@ export default {
       viewer.scene.fog.enabled = false;
       viewer.scene.globe.showGroundAtmosphere = false;
       viewer.scene.skyBox.show = false;
+      viewer.scene.sun.show = false;
       return viewer;
     },
     setUpSkyGlobe(viewer) {
       var dashedLine = viewer.entities.add({
-        name: 'Blue dashed line',
+        name: 'Direction to observator',
         polyline: {
           positions: Cesium.Cartesian3.fromDegreesArrayHeights([this.center[0], this.center[1], this.defaultheight,
           this.center[0], this.center[1], this.defaultheight - 100.0]),
@@ -97,7 +98,7 @@ export default {
       viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(0, -Math.PI / 4, 200));
 
       const skySphere = viewer.entities.add({
-        name: "Yellow ellipsoid outline",
+        name: "Celestial Sphere",
         position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.defaultheight),
         ellipsoid: {
           radii: new Cesium.Cartesian3(100000.0, 100000.0, 100000.0),
@@ -114,9 +115,16 @@ export default {
       let xTRS = ObjectInfo.fields.xTRS;
       let yTRS = ObjectInfo.fields.yTRS;
       let zTRS = ObjectInfo.fields.zTRS;
-      let r = 2000 / Math.abs(mag);
-      if (mag < 1.0) {
-        r = 2000;
+      const c = 1000
+      let r = c / (Math.abs(mag)/2.5);
+      if (mag < 1.0 && mag >= 0.0) {
+        r = c;
+      }
+      else if (mag < 0.0) {
+        r = 2.5 *c;
+      }
+      else if (mag < -20) {
+        r = 3*c;
       }
       const SkyObject = viewer.entities.add({
         position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
@@ -168,14 +176,29 @@ export default {
     }
     for (const key in NGCCatalog) {
       if (NGCCatalog[key].fields.xTRS !== undefined) {
-        let name = NGCCatalog[key].fields.object_definition + " : " + NGCCatalog[key].fields.name + ", Relative magnitude : " + NGCCatalog[key].fields.v_mag.toFixed(1);
+        let NGCName = '';
+        if ('common_names' in NGCCatalog[key].fields) {
+          NGCName = NGCCatalog[key].fields.common_names;
+        }
+        NGCName = NGCName + " " + NGCCatalog[key].fields.name;
+        let name = NGCName + ", Relative magnitude : " + NGCCatalog[key].fields.v_mag.toFixed(1);
         let mag = NGCCatalog[key].fields.v_mag;
         this.displayStars(this.viewer, NGCCatalog[key], name, Cesium.Color.LIGHTGREEN.withAlpha(0.5), mag);
       }
     }
     for (const key in HYGStellarCatalog) {
       if (HYGStellarCatalog[key].fields.xTRS !== undefined) {
-        let name = HYGStellarCatalog[key].fields.gl + ", Relative magnitude : " + HYGStellarCatalog[key].fields.mag.toFixed(1);
+        let StarName = '';
+        if ('proper' in HYGStellarCatalog[key].fields) {
+          StarName = HYGStellarCatalog[key].fields.proper + " " + HYGStellarCatalog[key].fields.bf;
+        }
+        else if ('bf' in HYGStellarCatalog[key].fields) {
+          StarName = HYGStellarCatalog[key].fields.bf;
+        }
+        else {
+          StarName = HYGStellarCatalog[key].fields.gl
+        }
+        let name = StarName + ", Relative magnitude : " + HYGStellarCatalog[key].fields.mag.toFixed(1);
         let mag = HYGStellarCatalog[key].fields.mag;
         this.displayStars(this.viewer, HYGStellarCatalog[key], name, Cesium.Color.WHITE, mag);
       }
