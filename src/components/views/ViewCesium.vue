@@ -109,16 +109,20 @@ export default {
         },
       })
     },
-    displayStars(viewer, ObjectInfo, name, color) {
+    displayStars(viewer, ObjectInfo, name, color, mag) {
       let SkyObjectName = name;
       let xTRS = ObjectInfo.fields.xTRS;
       let yTRS = ObjectInfo.fields.yTRS;
       let zTRS = ObjectInfo.fields.zTRS;
+      let r = 2000 / Math.abs(mag);
+      if (mag < 1.0) {
+        r = 2000;
+      }
       const SkyObject = viewer.entities.add({
         position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
         name: SkyObjectName,
         ellipsoid: {
-          radii: new Cesium.Cartesian3(500.0, 500.0, 500.0),
+          radii: new Cesium.Cartesian3(r, r, r),
           material: color,
           glowPower: 1.0
         },
@@ -153,24 +157,27 @@ export default {
 
     //Affichage des étoiles
     let MessierCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=catalogue-de-messier&q=&rows=110&facet=objet&facet=saison&facet=mag&facet=english_name_nom_en_anglais&facet=french_name_nom_francais&facet=latin_name_nom_latin&facet=decouvreur&facet=annee", store);
-    let NGCCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=ngc-ic-messier-catalog&q=&rows=1000&sort=name&facet=catalog&facet=object_definition&facet=const&facet=hubble", store);
-    let HYGStellarCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=hyg-stellar-database&q=&rows=1000&sort=mag&facet=mag", store);
+    let NGCCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=ngc-ic-messier-catalog&q=&rows=1000&sort=-v_mag&facet=catalog&facet=object_definition&facet=const&facet=hubble&refine.object_definition=Galaxy", store);
+    let HYGStellarCatalog = await GetParsedCatalog("https://www.datastro.eu/api/records/1.0/search/?dataset=hyg-stellar-database&q=&rows=2000&sort=-mag&facet=mag", store);
     for (const key in MessierCatalog) {
       if (MessierCatalog[key].fields.xTRS !== undefined) {
-        let name = MessierCatalog[key].fields.messier;
-        this.displayStars(this.viewer, MessierCatalog[key], name, Cesium.Color.LIGHTCORAL.withAlpha(0.5));
+        let name = MessierCatalog[key].fields.messier + ", Relative magnitude : " + MessierCatalog[key].fields.mag.toFixed(1);
+        let mag = MessierCatalog[key].fields.mag;
+        this.displayStars(this.viewer, MessierCatalog[key], name, Cesium.Color.LIGHTCORAL.withAlpha(0.5), mag);
       }
     }
     for (const key in NGCCatalog) {
       if (NGCCatalog[key].fields.xTRS !== undefined) {
-        let name = NGCCatalog[key].fields.name;
-        this.displayStars(this.viewer, NGCCatalog[key], name, Cesium.Color.LIGHTGREEN.withAlpha(0.5));
+        let name = NGCCatalog[key].fields.object_definition + " : " + NGCCatalog[key].fields.name + ", Relative magnitude : " + NGCCatalog[key].fields.v_mag.toFixed(1);
+        let mag = NGCCatalog[key].fields.v_mag;
+        this.displayStars(this.viewer, NGCCatalog[key], name, Cesium.Color.LIGHTGREEN.withAlpha(0.5), mag);
       }
     }
     for (const key in HYGStellarCatalog) {
       if (HYGStellarCatalog[key].fields.xTRS !== undefined) {
-        let name = HYGStellarCatalog[key].fields.gl;
-        this.displayStars(this.viewer, HYGStellarCatalog[key], name, Cesium.Color.WHITE);
+        let name = HYGStellarCatalog[key].fields.gl + ", Relative magnitude : " + HYGStellarCatalog[key].fields.mag.toFixed(1);
+        let mag = HYGStellarCatalog[key].fields.mag;
+        this.displayStars(this.viewer, HYGStellarCatalog[key], name, Cesium.Color.WHITE, mag);
       }
     }
   }

@@ -4,7 +4,7 @@
   <p class="title">{{ title }}</p>
   <div class="bodytext" id="left">
   Notre projet a pour objectif de réaliser une application Web géo-portail basée sur le framework VueJS.<br>
-  Notre choix de sujet s’est porté sur la cartographie céleste. Le but de cette application est d’afficher la position apparente d'objets célestes à une position sur Terre et un temps t. Pour ce faire, nous avons utilisé la bibliothèque Leaflet en affichant une carte 2D de la Suisse et par un clic de souris on récupère les coordonnées ellipsoidales du point d'observation. Puis on utilise, la bibliothèque Cesium pour afficher la position apparente des objets du catalogue de Messier, du catalogue NGC et de sa version mise à jour l'IC.
+  Notre choix de sujet s’est porté sur la cartographie céleste. Le but de cette application est d’afficher la position apparente d'objets célestes à une position sur Terre et un temps 't'. Pour ce faire, nous avons utilisé la bibliothèque Leaflet en affichant une carte 2D de la Suisse et par un clic de souris on récupère les coordonnées ellipsoidales du point d'observation. Puis on utilise, la bibliothèque Cesium pour afficher la position apparente des objets du catalogue de Messier, du catalogue NGC et de sa version mise à jour l'IC.
   </div>
   <div class="image" id="webb"></div>
   </div>

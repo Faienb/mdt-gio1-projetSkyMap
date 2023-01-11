@@ -26,10 +26,6 @@ export default {
           menuname: 'Home',
           route: '/'
         },
-        {
-          menuname: 'Current meteo',
-          route: '/meteo'
-        },
         /* {
           menuname: 'OpenLayer',
           route: '/openlayers'
@@ -37,6 +33,10 @@ export default {
         {
           menuname: 'Select observation point',
           route: '/ObsPoint'
+        },
+        {
+          menuname: 'Current meteo',
+          route: '/meteo'
         },
         {
           menuname: 'Sky Map',
