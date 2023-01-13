@@ -110,18 +110,44 @@ export default {
         },
       })
     },
-    displayStars(viewer, ObjectInfo, name, color, mag) {
-      let SkyObjectName = name;
-      let xTRS = ObjectInfo.fields.xTRS;
-      let yTRS = ObjectInfo.fields.yTRS;
-      let zTRS = ObjectInfo.fields.zTRS;
-      const c = 80
-      let r = (14-mag)*c
+
+    ComputeMagnitude(mag) {
+      const c = 1000;
+      const bSirius = -1.47;
+      //should be 0.4 to be accurate
+      let r = c / (10 ** (0.2 * mag));
       if (mag < -20) {
-        r = 50*c
+        r = 2500;
       }
+      return r;
+    },
+
+    displayStars(viewer, CoorTRS, name, color, mag) {
+      let SkyObjectName = name;
+      let xTRS = CoorTRS[0];
+      let yTRS = CoorTRS[1];
+      let zTRS = CoorTRS[2];
+      let r = this.ComputeMagnitude(mag)
       const SkyObject = viewer.entities.add({
         position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
+        name: SkyObjectName,
+        ellipsoid: {
+          radii: new Cesium.Cartesian3(r, r, r),
+          material: color,
+          glowPower: 1.0,
+        },
+      })
+    },
+    displayDeepSkyObjects(viewer, CoorTRS, name, color, mag) {
+      let SkyObjectName = name;
+      let xTRS = CoorTRS[0];
+      let yTRS = CoorTRS[1];
+      let zTRS = CoorTRS[2];
+      const bSirius = -1.47;
+      let r = this.ComputeMagnitude(mag)
+      const SkyObject = viewer.entities.add({
+        position: Cesium.Cartesian3.fromArray([xTRS, yTRS, zTRS]),
+
         name: SkyObjectName,
         ellipsoid: {
           radii: new Cesium.Cartesian3(r, r, r),
@@ -165,7 +191,8 @@ export default {
       if (MessierCatalog[key].fields.xTRS !== undefined) {
         let name = MessierCatalog[key].fields.messier + ", Relative magnitude : " + MessierCatalog[key].fields.mag.toFixed(1);
         let mag = MessierCatalog[key].fields.mag;
-        this.displayStars(this.viewer, MessierCatalog[key], name, Cesium.Color.LIGHTCORAL.withAlpha(0.5), mag);
+        let CoorTRS = [MessierCatalog[key].fields.xTRS, MessierCatalog[key].fields.yTRS, MessierCatalog[key].fields.zTRS];
+        this.displayDeepSkyObjects(this.viewer, CoorTRS, name, Cesium.Color.LIGHTCORAL.withAlpha(0.5), mag);
       }
     }
     for (const key in NGCCatalog) {
@@ -177,7 +204,8 @@ export default {
         NGCName = NGCName + " " + NGCCatalog[key].fields.name;
         let name = NGCName + ", Relative magnitude : " + NGCCatalog[key].fields.v_mag.toFixed(1);
         let mag = NGCCatalog[key].fields.v_mag;
-        this.displayStars(this.viewer, NGCCatalog[key], name, Cesium.Color.LIGHTGREEN.withAlpha(0.5), mag);
+        let CoorTRS = [NGCCatalog[key].fields.xTRS, NGCCatalog[key].fields.yTRS, NGCCatalog[key].fields.zTRS];
+        this.displayDeepSkyObjects(this.viewer, CoorTRS, name, Cesium.Color.LIGHTGREEN.withAlpha(0.5), mag);
       }
     }
     for (const key in HYGStellarCatalog) {
@@ -194,7 +222,8 @@ export default {
         }
         let name = StarName + ", Relative magnitude : " + HYGStellarCatalog[key].fields.mag.toFixed(1);
         let mag = HYGStellarCatalog[key].fields.mag;
-        this.displayStars(this.viewer, HYGStellarCatalog[key], name, Cesium.Color.WHITE, mag);
+        let CoorTRS = [HYGStellarCatalog[key].fields.xTRS, HYGStellarCatalog[key].fields.yTRS, HYGStellarCatalog[key].fields.zTRS];
+        this.displayStars(this.viewer, CoorTRS, name, Cesium.Color.WHITE, mag);
       }
     }
   }
